@@ -1,0 +1,57 @@
+#include <iostream>
+#include <cmath>
+#include <json/json.h>
+
+// Define the forward_kinematics function in C++
+double forward_kinematics(double leg_lengths[], double leg_angles[]) {
+    // Calculate the platform position using the forward kinematics formula
+    double platform_position = 0.0;
+    for (int i = 0; i < 6; i++) {
+        platform_position += leg_lengths[i] * std::cos(leg_angles[i]);
+    }
+    return platform_position;
+}
+
+// Define the main function in C++
+int main() {
+    // Parse the command-line arguments
+    int argc;
+    char **argv;
+    ctime(&start_time);
+    std::string line;
+    while (std::getline(std::cin, line)) {
+        // Parse the JSON request
+        Json::Value request_json;
+        if (!Json::FromValue(request_json, line)) {
+            std::cout << "Invalid JSON request" << std::endl;
+            continue;
+        }
+        
+        // Extract the leg lengths from the JSON request
+        double leg1_length = request_json["leg1_length"].asDouble();
+        double leg2_length = request_json["leg2_length"].asDouble();
+        double leg3_length = request_json["leg3_length"].asDouble();
+        double leg4_length = request_json["leg4_length"].asDouble();
+        double leg5_length = request_json["leg5_length"].asDouble();
+        double leg6_length = request_json["leg6_length"].asDouble();
+        
+        // Call the forward kinematics function
+        double platform_position = forward_kinematics(new double[]{leg1_length, leg2_length, leg3_length, leg4_length, leg5_length, leg6_length}, new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+        
+        // Call the inverse kinematics function
+        bool success = inverse_kinematics(platform_position, new double[]{leg1_length, leg2_length, leg3_length, leg4_length, leg5_length, leg6_length}, new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+        
+        // If the inverse kinematics function returns true, return the updated leg lengths and platform position as JSON
+        if (success) {
+            Json::Value response_json;
+            response_json["leg1_length"] = leg1_length;
+            response_json["leg2_length"] = leg2_length;
+            response_json["leg3_length"] = leg3_length;
+            response_json["leg4_length"] = leg4_length;
+            response_json["leg5_length"] = leg5_length;
+            response_json["leg6_length"] = leg6_length;
+            response_json["platform_position"] = platform_position;
+            std::cout << Json::fastWrite(response_json);
+        }
+    }
+}

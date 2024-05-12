@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stewart Platform Simulator</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+    <h1>Stewart Platform Simulator</h1>
+    <div id="leg1">
+        <label for="leg1_length">Leg 1 Length:</label>
+        <input type="range" id="leg1_length" min="0" max="100" value="50" oninput="updateLegLengths()">
+    </div>
+    <div id="leg2">
+        <label for="leg2_length">Leg 2 Length:</label>
+        <input type="range" id="leg2_length" min="0" max="100" value="50" oninput="updateLegLengths()">
+    </div>
+    <div id="leg3">
+        <label for="leg3_length">Leg 3 Length:</label>
+        <input type="range" id="leg3_length" min="0" max="100" value="50" oninput="updateLegLengths()">
+    </div>
+    <div id="leg4">
+        <label for="leg4_length">Leg 4 Length:</label>
+        <input type="range" id="leg4_length" min="0" max="100" value="50" oninput="updateLegLengths()">
+    </div>
+    <div id="leg5">
+        <label for="leg5_length">Leg 5 Length:</label>
+        <input type="range" id="leg5_length" min="0" max="100" value="50" oninput="updateLegLengths()">
+    </div>
+    <div id="leg6">
+        <label for="leg6_length">Leg 6 Length:</label>
+        <input type="range" id="leg6_length" min="0" max="100" value="50" oninput="updateLegLengths()">
+    </div>
+    <script>
+        function updateLegLengths() {
+            var leg1_length = document.getElementById("leg1_length").value;
+            var leg2_length = document.getElementById("leg2_length").value;
+            var leg3_length = document.getElementById("leg3_length").value;
+            var leg4_length = document.getElementById("leg4_length").value;
+            var leg5_length = document.getElementById("leg5_length").value;
+            var leg6_length = document.getElementById("leg6_length").value;
+            
+            // Send an HTTP request to the server to update the leg lengths and platform position
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/update_leg_lengths', true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    // Update the leg lengths and platform position in the HTML code
+                    var data = JSON.parse(xhr.responseText);
+                    document.getElementById("leg1_length").value = data.leg1_length;
+                    document.getElementById("leg2_length").value = data.leg2_length;
+                    document.getElementById("leg3_length").value = data.leg3_length;
+                    document.getElementById("leg4_length").value = data.leg4_length;
+                    document.getElementById("leg5_length").value = data.leg5_length;
+                    document.getElementById("leg6_length").value = data.leg6_length;
+                    
+                    // Update the platform position in the HTML code
+                    // ...
+                } else {
+                    console.error('Error updating leg lengths and platform position: ' + xhr.statusText);
+                }
+            };
+            xhr.send(JSON.stringify({
+                'leg1_length': leg1_length,
+                'leg2_length': leg2_length,
+                'leg3_length': leg3_length,
+                'leg4_length': leg4_length,
+                'leg5_length': leg5_length,
+                'leg6_length': leg6_length
+            }));
+        }
+    </script>
+</body>
+</html>
