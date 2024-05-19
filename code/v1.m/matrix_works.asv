@@ -35,7 +35,7 @@ T = [
 outputresult = result;
 inputForces = rand(1,6);
 
-for i = 1:10000
+for i = 1:
     Force = [rand(1,6)];
 T = [
     i1,cross(b1,i1);
@@ -50,8 +50,11 @@ outputresult = [outputresult;result];
 inputForces = [inputForces;Force]; 
 end
 
-
-O = zeros(i+1,1);
+% disp("output result")
+% disp(outputresult)
+% disp("inputForces")
+% disp(inputForces)
+    O = zeros(i+1,1);
 finalOutput = [inputForces,O,outputresult]
  
 
