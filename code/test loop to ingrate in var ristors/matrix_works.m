@@ -1,3 +1,7 @@
+% to cnect to esp throgh COM6 to pins D2,D4,D12-D15
+conct_and_read_pin
+
+% look at paper
 i1 = [1 2 3];
 i2 = [3 2 1];
 i3 = [1 2 3];
@@ -11,14 +15,9 @@ b3 = [1 2 3];
 b4 = [3 2 1];
 b5 = [1 9 3];
 b6 = [3 2 8];
-% 
-% f1 = 4;
-% f2 = 2;
-% f3 = 2;
-% f4 = 42;
-% f5 = 76;
-% f6 = 675;
 
+
+Force = [F1V,F2V,F3V,F4V,F5V,F6V];
 
 T = [
     i1,cross(b1,i1);
@@ -28,15 +27,15 @@ T = [
     i5,cross(b5,i5);
     i6,cross(b6,i6)];
     
- result = F * T;
- Force = [rand(1,6)];
+
+result = Force * T;   
 
 
 outputresult = result;
 inputForces = rand(1,6);
 
-for i = 1:10000
-    Force = [rand(1,6)];
+for i = 1:10
+    Force = Force;
 T = [
     i1,cross(b1,i1);
     i2,cross(b2,i2);
