@@ -2,7 +2,7 @@
 
  The goal of this project is to make a low cost cheap 6 axis load cell design for measuring small forces up to 3000N this will be done with a Stewart platform design and strain gauges
 
- HEAD
+ BOM: https://docs.google.com/spreadsheets/d/1DH0zlGb7TFqwraOZyVDA1qlbqgXSxcA0r8sQnDxzwLU/edit?usp=sharing 
 
 ## **Goals**
 
@@ -15,4 +15,4 @@
 | Cost             | 200 aud        |
 | assambly time    | 2.5 h          |
 
- Find a new research at at https://www.researchrabbitapp.com/collection/public/NLV1NYKY6P
+
