@@ -2,8 +2,8 @@
 #include "HX711.h"
 
 // Define the HX711 pins for each load cell
-const int LOADCELL_DOUT_PINS[6] = {32, 30, 28, 26, 24, 22};  // Data Out pins for each load cell
-const int LOADCELL_SCK_PINS[6] = {33, 31, 29, 27, 25, 23};   // Clock pins for each load cell
+const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14}; 
+const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
 
 HX711 scales[6];  // Array to hold HX711 objects for each load cell
 

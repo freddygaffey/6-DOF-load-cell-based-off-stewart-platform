@@ -73,7 +73,6 @@ try:
 
 except KeyboardInterrupt:
     # Handle the keyboard interrupt
-    print("done")
     print("Force Log:")
     print(forceLog)
     # Optionally, close the serial port
