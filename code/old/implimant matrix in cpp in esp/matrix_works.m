@@ -1,1 +1,0 @@
-m = arduino("COM8","Mega2560","Libraries","basic_HX711")
