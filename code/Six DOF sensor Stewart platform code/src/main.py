@@ -39,7 +39,6 @@ forceLog = np.zeros((1, 6))
 try:
     # Main loop to read from the serial port
     while True:
-        # Wait until data is available in the serial buffer
         while ser.inWaiting() == 0:
             pass
 
@@ -51,7 +50,6 @@ try:
         
         # Check if the length of the input data is 6
         if len(splitInputData) != 6:
-            # If not, use a default array of zeros
             splitInputData = [0, 0, 0, 0, 0, 0]
         else:
             # Convert the split data to floats
@@ -61,14 +59,12 @@ try:
         splitInputData = np.array(splitInputData)
         #print("Split Input Data:", splitInputData)
 
-        # Append the new data to the datalog
         datalog = np.vstack((datalog, splitInputData))
 
-        # Calculate the force vector
         ForceInput = splitInputData
         ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)
 
-        # Append the new force data to the forceLog
+        # Append the new data to the datalog
         forceLog = np.vstack((forceLog, ForceInput_x_T))
 
         # Print the force input and calculated force vector
