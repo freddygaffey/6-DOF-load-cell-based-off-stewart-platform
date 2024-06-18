@@ -2,11 +2,11 @@ import time
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
-ser = serial.Serial('COM8', 230400)
+ser = serial.Serial('COM6', 230400)
 
 
-# Define the input parameters of these Stewart platform configurations
-i1 = np.array([1, 2, 3])
+# Define the input parameters of these Stewart platform configurations as in imige in the 
+i1 = np.array([-0.18802703, -0.85634939,  0.4809486, ])
 i2 = np.array([3, 2, 1])
 i3 = np.array([1, 2, 3])
 i4 = np.array([3, 2, 1])
@@ -17,8 +17,8 @@ b1 = np.array([1, 2, 3])
 b2 = np.array([3, 2, 1])
 b3 = np.array([1, 2, 3])
 b4 = np.array([3, 2, 1])
-b5 = np.array([1, 9, 3])  
-b6 = np.array([3, 2, 8])  
+b5 = np.array([1, 9, 3])
+b6 = np.array([3, 2, 8])
 
 
 # Define the T matrix as in the paper
@@ -74,6 +74,7 @@ try:
         # Print the force input and calculated force vector
         print("Force Input:", ForceInput)
         print("Force Input x T:", ForceInput_x_T)
+    
 
 except KeyboardInterrupt:
     # Handle the keyboard interrupt
@@ -82,3 +83,4 @@ except KeyboardInterrupt:
     print(forceLog)
     # Optionally, close the serial port
     ser.close()
+    

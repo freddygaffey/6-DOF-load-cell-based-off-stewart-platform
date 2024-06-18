@@ -2,23 +2,24 @@ import time
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
-ser = serial.Serial('COM8', 230400)
+ser = serial.Serial('COM6', 230400)
 
 
 # Define the input parameters of these Stewart platform configurations
-i1 = np.array([1, 2, 3])
-i2 = np.array([3, 2, 1])
-i3 = np.array([1, 2, 3])
-i4 = np.array([3, 2, 1])
-i5 = np.array([1, 2, 3])
-i6 = np.array([3, 2, 1])
+#the configurations form my CAD model
+i1 = np.array([-0.18802702589737308, -0.8563493948614032, 0.48094859543686896])
+i2 = np.array([0.5105272145216883, -0.8563493948529314, -0.0776381167194588])
+i3 = np.array([-0.32250018854892964, -0.8563493948918757, -0.40331047873099357])
+i4 = np.array([-0.18802702589737308, -0.8563493948614032, 0.48094859543686896])
+i5 = np.array([0.5105272145216883, -0.8563493948529314, -0.0776381167194588])
+i6 = np.array([-0.32250018854892964, -0.8563493948918757, -0.40331047873099357])
 
-b1 = np.array([1, 2, 3])
-b2 = np.array([3, 2, 1])
-b3 = np.array([1, 2, 3])
-b4 = np.array([3, 2, 1])
-b5 = np.array([1, 9, 3])  
-b6 = np.array([3, 2, 8])  
+b1 = np.array([77.15154998, 0.0, 0.0])
+b2 = np.array([-16.96943912, 0.0, 75.26220699])
+b3 = np.array([-38.57577499, 0.0, 66.81520222])
+b4 = np.array([-56.69426364, 0.0, -52.32706886])
+b5 = np.array([-38.57577499, 0.0, -66.81520222])  
+b6 = np.array([73.66370275, 0.0, -22.93513813])  
 
 
 # Define the T matrix as in the paper
