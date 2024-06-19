@@ -2,8 +2,14 @@ import time
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
+import csv
 ser = serial.Serial('COM6', 230400)
 
+file_name = str(input("file name: "))
+if file_name[len(file_name):len(file_name)-3] != "csv.":
+    file_name = file_name + ".csv"
+file = open(file_name, 'x')
+file.write("note,count,time,input_from_load_cell_1,input_from_load_cell_2,input_from_load_cell_3,input_from_load_cell_4,input_from_load_cell_5,input_from_load_cell_6,output_1,output_2,output_3,output_4,output_5,output_6\n")
 
 # Define the input parameters of these Stewart platform configurations
 #the configurations form my CAD model
@@ -25,56 +31,74 @@ b6 = np.array([73.66370275, 0.0, -22.93513813])
 # Define the T matrix as in the paper
 T = np.array(
             [np.concatenate((i1, np.cross(b1, i1))),
-              np.concatenate((i2, np.cross(b2, i2))),
-              np.concatenate((i3, np.cross(b3, i3))),
-              np.concatenate((i4, np.cross(b4, i4))),
-              np.concatenate((i5, np.cross(b5, i5))),
-              np.concatenate((i6, np.cross(b6, i6)))])
-print("T Matrix:")
-print(T)
-
-time.sleep(1)
-
+            np.concatenate((i2, np.cross(b2, i2))),
+            np.concatenate((i3, np.cross(b3, i3))),
+            np.concatenate((i4, np.cross(b4, i4))),
+            np.concatenate((i5, np.cross(b5, i5))),
+            np.concatenate((i6, np.cross(b6, i6)))])
+    
 datalog = np.zeros((1, 6))
 forceLog = np.zeros((1, 6))
+startTime = time.time()
+timelog = currentTime = time.time()
+TimesSinceStartLog = 0   
+count = 0
+i = 0
+
 try:
     # Main loop to read from the serial port
     while True:
         while ser.inWaiting() == 0:
             pass
-
-        # Read a line of data from the serial port
         indat = ser.readline().decode('UTF-8', errors='ignore').strip()
-        
-        # Split the input data by commas
         splitInputData = indat.split(",")
         
         # Check if the length of the input data is 6
         if len(splitInputData) != 6:
             splitInputData = [0, 0, 0, 0, 0, 0]
         else:
-            # Convert the split data to floats
             splitInputData = [float(value) for value in splitInputData]
 
         # Convert the list to a numpy array
-        splitInputData = np.array(splitInputData)
-        #print("Split Input Data:", splitInputData)
-
-        datalog = np.vstack((datalog, splitInputData))
-
-        ForceInput = splitInputData
+        splitInputData = ForceInput = np.array(splitInputData)
         ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)
+        count += 1
+        Time = time.time()
+        SForceInput = str(ForceInput[0]) + "," + str(ForceInput[1]) + "," + str(ForceInput[2]) + "," + str(ForceInput[3]) + "," + str(ForceInput[4]) + "," + str(ForceInput[5]) + ","
+        SForceInput_x_T = str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
+        #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
+        string_to_write = str(count) + "," + str(count) + "," + str(Time) + SForceInput + SForceInput_x_T
+        file.write(str(string_to_write))
+        file.write("\n")
 
-        # Append the new data to the datalog
-        forceLog = np.vstack((forceLog, ForceInput_x_T))
+        i +=1
+        if i == 50:
+            i = 0
+            # live plotting for force input
+            plt.figure("Force Input")
+            plt.plot(Time, ForceInput[0],  marker='x')
+            plt.plot(Time, ForceInput[1],  marker='x')
+            plt.plot(Time, ForceInput[2],  marker='x')
+            plt.plot(Time, ForceInput[3],  marker='x')
+            plt.plot(Time, ForceInput[4],  marker='x')
+            plt.plot(Time, ForceInput[5],  marker='x')
+            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+            plt.pause(0.01)
 
-        # Print the force input and calculated force vector
-        print("Force Input:", ForceInput)
-        print("Force Input x T:", ForceInput_x_T)
-
+            # live plotting for force with math
+            plt.figure("Force Input x T")
+            plt.plot(Time, ForceInput_x_T[0],  marker='x')
+            plt.plot(Time, ForceInput_x_T[1],  marker='x')
+            plt.plot(Time, ForceInput_x_T[2],  marker='x')
+            plt.plot(Time, ForceInput_x_T[3],  marker='x')
+            plt.plot(Time, ForceInput_x_T[4],  marker='x')
+            plt.plot(Time, ForceInput_x_T[5],  marker='x')
+            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+            plt.pause(0.01)
 except KeyboardInterrupt:
-    # Handle the keyboard interrupt
-    print("Force Log:")
-    print(forceLog)
-    # Optionally, close the serial port
-    ser.close()
+     pass
+   
+   
+   
+   
+       
