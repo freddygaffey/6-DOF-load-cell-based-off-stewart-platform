@@ -1,34 +1,64 @@
 #include <Arduino.h>
-#include "HX711.h"
 
-// Define the HX711 pins for each load cell
-const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
-const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
+volatile bool tear = false; // flag to indicate tearing
+volatile unsigned long counters[6] = {1, 1, 1, 1, 1, 1};
 
-HX711 scales[6];  // Array to hold HX711 objects for each load cell
-
-// Define calibration factors for each load cell
-float calibration_factors[6] = {0,0,0,0,0,0}; // Default values, adjust as necessary
+unsigned long previousMillis = 0;
+const long interval = 1; // interval in milliseconds
 
 void setup() {
-  Serial.begin(230400); // Initialize serial communication at 1,000,000 baud
-
-  // Initialize each HX711 module with the corresponding pins and calibration factor
-  for (int i = 0; i < 6; i++) {
-    scales[i].begin(LOADCELL_DOUT_PINS[i], LOADCELL_SCK_PINS[i]);
-  }
-
-  Serial.print("");
+  Serial.begin(230400); // Start serial communication at 9600 baud
 }
 
 void loop() {
-  // Print the weight in grams for each load cell
-  for (int i = 0; i < 6; i++) {
-    Serial.print(scales[i].get_units(), 1);
-    if (i < 5) {
-    Serial.print(",");
-    }
-  }
+  unsigned long currentMillis = millis(); // Get the current time
 
-  Serial.println();
+  if (currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis;
+    for (int i = 0; i < 6; ++i) {
+      Serial.print(counters[i]);
+      if (i < 5) {
+        Serial.print(","); // Print a comma between numbers
+      }
+      counters[i]++; // Increment each counter
+    }
+    Serial.println(); // Print a newline after the last number
+  }
 }
+
+
+
+// #include <Arduino.h>
+// #include "HX711.h"
+
+// // Define the HX711 pins for each load cell
+// const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
+// const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
+
+// HX711 scales[6];  // Array to hold HX711 objects for each load cell
+
+// // Define calibration factors for each load cell
+// float calibration_factors[6] = {0,0,0,0,0,0}; // Default values, adjust as necessary
+
+// void setup() {
+//   Serial.begin(230400); // Initialize serial communication at 1,000,000 baud
+
+//   // Initialize each HX711 module with the corresponding pins and calibration factor
+//   for (int i = 0; i < 6; i++) {
+//     scales[i].begin(LOADCELL_DOUT_PINS[i], LOADCELL_SCK_PINS[i]);
+//   }
+
+//   Serial.print("");
+// }
+
+// void loop() {
+//   // Print the weight in grams for each load cell
+//   for (int i = 0; i < 6; i++) {
+//     Serial.print(scales[i].get_units(), 1);
+//     if (i < 5) {
+//     Serial.print(",");
+//     }
+//   }
+
+//   Serial.println();
+// }

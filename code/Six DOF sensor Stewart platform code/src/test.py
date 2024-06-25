@@ -74,17 +74,6 @@ try:
         i +=1
         if i == 50:
             i = 0
-            # live plotting for force input
-            plt.figure("Force Input")
-            plt.plot(Time, ForceInput[0],  marker='x')
-            plt.plot(Time, ForceInput[1],  marker='x')
-            plt.plot(Time, ForceInput[2],  marker='x')
-            plt.plot(Time, ForceInput[3],  marker='x')
-            plt.plot(Time, ForceInput[4],  marker='x')
-            plt.plot(Time, ForceInput[5],  marker='x')
-            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
-            plt.pause(0.01)
-
             # live plotting for force with math
             plt.figure("Force Input x T")
             plt.plot(Time, ForceInput_x_T[0],  marker='x')
@@ -95,6 +84,8 @@ try:
             plt.plot(Time, ForceInput_x_T[5],  marker='x')
             plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
             plt.pause(0.01)
+
+            
 except KeyboardInterrupt:
      pass
    
