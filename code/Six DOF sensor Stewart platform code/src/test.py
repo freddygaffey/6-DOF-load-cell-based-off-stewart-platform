@@ -1,15 +1,40 @@
+
 import time
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
+import os
 ser = serial.Serial('COM6', 230400)
 
 file_name = str(input("file name: "))
-if file_name[len(file_name):len(file_name)-3] != "csv.":
+folder_name = file_name
+relative_path_to_data = os.chdir(os.path.join("code", "Data"))  # Relative path to the "Data" folder from the current working directory
+starDr = os.getcwd()
+os.mkdir(folder_name)
+os.chdir(folder_name)
+if file_name[-4:] != ".csv":
     file_name = file_name + ".csv"
 file = open(file_name, 'x')
-file.write("note,count,time,input_from_load_cell_1,input_from_load_cell_2,input_from_load_cell_3,input_from_load_cell_4,input_from_load_cell_5,input_from_load_cell_6,output_1,output_2,output_3,output_4,output_5,output_6\n")
+file.write("\n")
+txt_file = file_name[:-4] + "notes" + ".txt"
+txt_file = open(txt_file, 'x')
+txt_file.write("\n")
+
+
+
+
+def force_plot():
+    plt.ion()
+    plt.figure("Force Input x T")
+    plt.plot(Time, ForceInput_x_T[0],  marker='x')
+    plt.plot(Time, ForceInput_x_T[1],  marker='x')
+    plt.plot(Time, ForceInput_x_T[2],  marker='x')
+    plt.plot(Time, ForceInput_x_T[3],  marker='x')
+    plt.plot(Time, ForceInput_x_T[4],  marker='x')
+    plt.plot(Time, ForceInput_x_T[5],  marker='x')
+    plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+    plt.pause(0.01)
 
 # Define the input parameters of these Stewart platform configurations
 #the configurations form my CAD model
@@ -19,6 +44,7 @@ i3 = np.array([-0.32250018854892964, -0.8563493948918757, -0.40331047873099357])
 i4 = np.array([-0.18802702589737308, -0.8563493948614032, 0.48094859543686896])
 i5 = np.array([0.5105272145216883, -0.8563493948529314, -0.0776381167194588])
 i6 = np.array([-0.32250018854892964, -0.8563493948918757, -0.40331047873099357])
+
 
 b1 = np.array([77.15154998, 0.0, 0.0])
 b2 = np.array([-16.96943912, 0.0, 75.26220699])
@@ -36,7 +62,8 @@ T = np.array(
             np.concatenate((i4, np.cross(b4, i4))),
             np.concatenate((i5, np.cross(b5, i5))),
             np.concatenate((i6, np.cross(b6, i6)))])
-    
+
+   
 datalog = np.zeros((1, 6))
 forceLog = np.zeros((1, 6))
 startTime = time.time()
@@ -64,30 +91,26 @@ try:
         ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)
         count += 1
         Time = time.time()
-        SForceInput = str(ForceInput[0]) + "," + str(ForceInput[1]) + "," + str(ForceInput[2]) + "," + str(ForceInput[3]) + "," + str(ForceInput[4]) + "," + str(ForceInput[5]) + ","
-        SForceInput_x_T = str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
         #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
-        string_to_write = str(count) + "," + str(count) + "," + str(Time) + SForceInput + SForceInput_x_T
+        string_to_write = str(count)  + "," + str(Time) + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
         file.write(str(string_to_write))
         file.write("\n")
 
         i +=1
         if i == 50:
             i = 0
-            # live plotting for force with math
-            plt.figure("Force Input x T")
-            plt.plot(Time, ForceInput_x_T[0],  marker='x')
-            plt.plot(Time, ForceInput_x_T[1],  marker='x')
-            plt.plot(Time, ForceInput_x_T[2],  marker='x')
-            plt.plot(Time, ForceInput_x_T[3],  marker='x')
-            plt.plot(Time, ForceInput_x_T[4],  marker='x')
-            plt.plot(Time, ForceInput_x_T[5],  marker='x')
-            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
-            plt.pause(0.01)
+            force_plot()
+
+        
 
             
 except KeyboardInterrupt:
-     pass
+    ser.close()  # to restore the current working directory
+    file.close()
+    txt_file_notes = input("notes: ")
+    txt_file.write(txt_file_notes)
+    txt_file.close()
+    pass
    
    
    
