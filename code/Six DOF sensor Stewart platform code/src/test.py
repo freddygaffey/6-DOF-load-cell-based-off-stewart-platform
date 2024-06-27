@@ -21,9 +21,6 @@ txt_file = file_name[:-4] + "notes" + ".txt"
 txt_file = open(txt_file, 'x')
 txt_file.write("\n")
 
-
-
-
 def force_plot():
     plt.ion()
     plt.figure("Force Input x T")
