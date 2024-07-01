@@ -152,9 +152,3 @@ except KeyboardInterrupt:
     Thread_readSerial_writeTOcsv.join()
     Thread_force_plot.join()
     pass
-
-
-
-
-
-    

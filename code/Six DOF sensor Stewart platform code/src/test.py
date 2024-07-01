@@ -77,10 +77,6 @@ def end():
     txt_file_notes = input(str("notes: "))
     txt_file.write(txt_file_notes)
     txt_file.close()
-    ThreadUserInput.join()
-    Thread_tear.join()
-    Thread_readSerial_writeTOcsv.join()
-    Thread_force_plot.join()
     pass
 def readSerial_writeTOcsv():
         global ForceInput_x_T
@@ -115,46 +111,18 @@ def tear():
         i += 1
     tear_value = 0 - average_ForceInput_x_T
     print(tear_value)
-def UserInput():
-    global user_input
-    user_input = input("Press t to tear and e to exit")
-# def start_Threads():
-#     ThreadUserInput = threading.Thread(target=UserInput)
-#     ThreadUserInput.start()
-#     Thread_tear = threading.Thread(target=tear)
-#     Thread_tear.start()
-#     Thread_readSerial_writeTOcsv = threading.Thread(target=readSerial_writeTOcsv)
-#     Thread_readSerial_writeTOcsv.start()
-#     Thread_force_plot = threading.Thread(target=force_plot)
-#     Thread_force_plot.start()
 
 
-
-try:
-    while True:
-        if KeyboardInterrupt == True:
-            next_action = input("Press t to tear and e to exit")
-            if input() == 't':
-                # TODO: make a function to tear()
-                pass 
+while True:
+    try:
         readSerial_writeTOcsv()
         force_plot()
-
-
-except KeyboardInterrupt:
-    ser.close()  # to restore the current working directory
-    file.close()
-    txt_file_notes = input(str("notes: "))
-    txt_file.write(txt_file_notes)
-    txt_file.close()
-    ThreadUserInput.join()
-    Thread_tear.join()
-    Thread_readSerial_writeTOcsv.join()
-    Thread_force_plot.join()
-    pass
-
-
-
-
-
-    
+    except KeyboardInterrupt:
+        user_input = input("Press t to tear and e to exit: ")
+        if input() == 't':
+            tear()
+        if user_input == 'e':
+            end()
+        else:
+            readSerial_writeTOcsv()
+            force_plot()
