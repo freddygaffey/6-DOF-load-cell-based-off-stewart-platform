@@ -20,13 +20,6 @@
 
 #include <HX711_ADC.h>
 #if defined(ESP8266)|| defined(ESP32) || defined(AVR)
-#if defined(ESP8266)|| defined(ESP32)
-EEPROM.begin(512);
-#endif
-EEPROM.put(calVal_eepromAdress, newCalibrationValue);
-#if defined(ESP8266)|| defined(ESP32)
-EEPROM.commit();
-#endif
 #include <EEPROM.h>
 #endif
 
