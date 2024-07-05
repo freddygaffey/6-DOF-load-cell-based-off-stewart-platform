@@ -7,7 +7,7 @@ import os
 import threading
 
 
-ser = serial.Serial('COM6', 230400)
+ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
 
@@ -27,7 +27,7 @@ def start_files():
     global file
     file = open(file_name, 'x')
     file.write("count, Time, ForceInput_x_T[0], ForceInput_x_T[1], ForceInput_x_T[2], ForceInput_x_T[3], ForceInput_x_T[4], ForceInput_x_T[5] \n")
-    txt_file = file_name[:-4] + "notes" + ".txt"
+    txt_file = file_name[:-4] + " notes" + ".txt"
     txt_file = open(txt_file, 'x')
     txt_file.write("\n")
 start_files()
