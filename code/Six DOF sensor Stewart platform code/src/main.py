@@ -7,9 +7,10 @@ import os
 import threading
 
 
-ser = serial.Serial('COM6', 230400)
+ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
+
 
 
 def start_files():
@@ -27,7 +28,7 @@ def start_files():
     global file
     file = open(file_name, 'x')
     file.write("count, Time, ForceInput_x_T[0], ForceInput_x_T[1], ForceInput_x_T[2], ForceInput_x_T[3], ForceInput_x_T[4], ForceInput_x_T[5] \n")
-    txt_file = file_name[:-4] + "notes" + ".txt"
+    txt_file = file_name[:-4] + " notes" + ".txt"
     txt_file = open(txt_file, 'x')
     txt_file.write("\n")
 start_files()
@@ -41,6 +42,7 @@ def force_plot():
     plt.plot(count, ForceInput_x_T[4],  marker='x')
     plt.plot(count, ForceInput_x_T[5],  marker='x')
     plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+    plt.show()
     plt.pause(0.01)
 def define_legs_config_T():
     # Define the input parameters of these Stewart platform configurations
@@ -77,10 +79,6 @@ def end():
     txt_file_notes = input(str("notes: "))
     txt_file.write(txt_file_notes)
     txt_file.close()
-    ThreadUserInput.join()
-    Thread_tear.join()
-    Thread_readSerial_writeTOcsv.join()
-    Thread_force_plot.join()
     pass
 def readSerial_writeTOcsv():
         global ForceInput_x_T
@@ -100,6 +98,7 @@ def readSerial_writeTOcsv():
         # Convert the list to a numpy array
         splitInputData = ForceInput = np.array(splitInputData)
         ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)+tear_value
+        print(ForceInput_x_T)
         count += 1
         Time = time.time()
         #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
@@ -115,40 +114,19 @@ def tear():
         i += 1
     tear_value = 0 - average_ForceInput_x_T
     print(tear_value)
-def UserInput():
-    global user_input
-    user_input = input("Press t to tear and e to exit")
-# def start_Threads():
-#     ThreadUserInput = threading.Thread(target=UserInput)
-#     ThreadUserInput.start()
-#     Thread_tear = threading.Thread(target=tear)
-#     Thread_tear.start()
-#     Thread_readSerial_writeTOcsv = threading.Thread(target=readSerial_writeTOcsv)
-#     Thread_readSerial_writeTOcsv.start()
-#     Thread_force_plot = threading.Thread(target=force_plot)
-#     Thread_force_plot.start()
 
 
-
-try:
-    while True:
-        if KeyboardInterrupt == True:
-            next_action = input("Press t to tear and e to exit")
-            if input() == 't':
-                # TODO: make a function to tear()
-                pass 
+while True:
+    try:
         readSerial_writeTOcsv()
         force_plot()
-
-
-except KeyboardInterrupt:
-    ser.close()  # to restore the current working directory
-    file.close()
-    txt_file_notes = input(str("notes: "))
-    txt_file.write(txt_file_notes)
-    txt_file.close()
-    ThreadUserInput.join()
-    Thread_tear.join()
-    Thread_readSerial_writeTOcsv.join()
-    Thread_force_plot.join()
-    pass
+        
+    except KeyboardInterrupt:
+        user_input = input("Press t to tear and e to exit: ")
+        if input() == 't':
+            tear()
+        if user_input == 'e':
+            end()
+        else:
+            readSerial_writeTOcsv()
+            force_plot()

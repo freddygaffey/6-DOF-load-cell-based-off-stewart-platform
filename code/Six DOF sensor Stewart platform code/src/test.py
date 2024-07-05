@@ -12,6 +12,7 @@ tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
 
 
+
 def start_files():
     global file
     global txt_file
@@ -41,6 +42,7 @@ def force_plot():
     plt.plot(count, ForceInput_x_T[4],  marker='x')
     plt.plot(count, ForceInput_x_T[5],  marker='x')
     plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+    plt.show()
     plt.pause(0.01)
 def define_legs_config_T():
     # Define the input parameters of these Stewart platform configurations
@@ -96,6 +98,7 @@ def readSerial_writeTOcsv():
         # Convert the list to a numpy array
         splitInputData = ForceInput = np.array(splitInputData)
         ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)+tear_value
+        print(ForceInput_x_T)
         count += 1
         Time = time.time()
         #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
@@ -117,6 +120,7 @@ while True:
     try:
         readSerial_writeTOcsv()
         force_plot()
+        
     except KeyboardInterrupt:
         user_input = input("Press t to tear and e to exit: ")
         if input() == 't':
