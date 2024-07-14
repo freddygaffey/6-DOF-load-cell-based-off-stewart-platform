@@ -6,11 +6,9 @@ import csv
 import os
 import threading
 
-
 ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
-
 
 def start_files():
     global file
@@ -30,18 +28,20 @@ def start_files():
     txt_file = file_name[:-4] + " notes" + ".txt"
     txt_file = open(txt_file, 'x')
     txt_file.write("\n")
-start_files()
 def force_plot():
-    plt.ion()
-    plt.figure("Force Input x T")
-    plt.plot(count, ForceInput_x_T[0],  marker='x')
-    plt.plot(count, ForceInput_x_T[1],  marker='x')
-    plt.plot(count, ForceInput_x_T[2],  marker='x')
-    plt.plot(count, ForceInput_x_T[3],  marker='x')
-    plt.plot(count, ForceInput_x_T[4],  marker='x')
-    plt.plot(count, ForceInput_x_T[5],  marker='x')
-    plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
-    plt.pause(0.01)
+        if count == 0:
+            plt.show()
+        if count % 20 == 0:    
+            plt.figure("Force Input x T")
+            plt.title('Force Input x T')
+            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+            plt.plot(count, ForceInput_x_T[0],  marker='x')
+            plt.plot(count, ForceInput_x_T[1],  marker='x')
+            plt.plot(count, ForceInput_x_T[2],  marker='x')
+            plt.plot(count, ForceInput_x_T[3],  marker='x')
+            plt.plot(count, ForceInput_x_T[4],  marker='x')
+            plt.plot(count, ForceInput_x_T[5],  marker='x')
+            plt.pause(0.00001)   
 def define_legs_config_T():
     # Define the input parameters of these Stewart platform configurations
     #the configurations form my CAD model
@@ -70,18 +70,17 @@ def define_legs_config_T():
                 np.concatenate((i4, np.cross(b4, i4))),
                 np.concatenate((i5, np.cross(b5, i5))),
                 np.concatenate((i6, np.cross(b6, i6)))])
-define_legs_config_T()
 def end():
     ser.close()  # to restore the current working directory
     file.close()
     txt_file_notes = input(str("notes: "))
     txt_file.write(txt_file_notes)
     txt_file.close()
+
     pass
 def readSerial_writeTOcsv():
-        global ForceInput_x_T
-        global ForceInput
         global count
+        global ForceInput_x_T
         while ser.inWaiting() == 0:
             pass
         indat = ser.readline().decode('UTF-8', errors='ignore').strip()
@@ -99,9 +98,10 @@ def readSerial_writeTOcsv():
         count += 1
         Time = time.time()
         #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
-        string_to_write = str(count)  + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
+        string_to_write = f"{count},{Time},{ForceInput_x_T[0]},{ForceInput_x_T[1]},{ForceInput_x_T[2]},{ForceInput_x_T[3]},{ForceInput_x_T[4]},{ForceInput_x_T[5]}"        
         file.write(str(string_to_write))
-        file.write("\n")
+        file.write("\n") 
+        print(string_to_write)
 def tear():
     global tear_value 
     i = 0
@@ -112,17 +112,20 @@ def tear():
     tear_value = 0 - average_ForceInput_x_T
     print(tear_value)
 
+start_files()
+define_legs_config_T()    
+
 
 while True:
     try:
         readSerial_writeTOcsv()
         force_plot()
+                
     except KeyboardInterrupt:
         user_input = input("Press t to tear and e to exit: ")
         if input() == 't':
             tear()
         if user_input == 'e':
             end()
-        else:
-            readSerial_writeTOcsv()
-            force_plot()
+
+            
