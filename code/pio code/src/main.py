@@ -6,7 +6,7 @@ import csv
 import os
 import threading
 
-ser = serial.Serial('/dev/ttyUSB0', 230400)
+ser = serial.Serial('COM9', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
 
@@ -99,7 +99,7 @@ def readSerial_writeTOcsv():
         count += 1
         Time = time.time()
         #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
-        string_to_write = f"{count},{Time},{ForceInput_x_T[0]},{ForceInput_x_T[1]},{ForceInput_x_T[2]},{ForceInput_x_T[3]},{ForceInput_x_T[4]},{ForceInput_x_T[5]}"        
+        string_to_write = str(count)  + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
         file.write(str(string_to_write))
         file.write("\n") 
         print(string_to_write)
@@ -128,5 +128,3 @@ while True:
             tear()
         if user_input == 'e':
             end()
-
-            
