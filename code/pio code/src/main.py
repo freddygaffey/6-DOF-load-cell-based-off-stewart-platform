@@ -6,9 +6,26 @@ import csv
 import os
 import threading
 
+# // Define the HX711 pins for each load cell
+# const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
+# const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
+
+
+
 ser = serial.Serial('COM9', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
+plot_res = 3 # higer num means faster plotting les resolution
+
+
+# cat gpt 
+fig, ax = plt.subplots()
+lines = [ax.plot([], [], label=f'Force Input {i+1}')[0] for i in range(6)]
+ax.legend(loc='upper right')
+ax.set_title('Force Input x T')
+ax.set_xlim(0, 100)
+ax.set_ylim(-100, 100)
+
 
 def start_files():
     global file
@@ -28,20 +45,39 @@ def start_files():
     txt_file = file_name[:-4] + " notes" + ".txt"
     txt_file = open(txt_file, 'x')
     txt_file.write("\n")
-def force_plot():
+    
+def ForceInput_x_T_plot():
         if count == 0:
             plt.show()
+        if count % plot_res == 0:    
+            plt.figure("Force Input x T")
+            plt.title('Force Input x T')
+            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+            plt.plot(count, ForceInput_x_T[0],  marker='x')
+            plt.plot(count, ForceInput_x_T[1],  marker='x')
+            plt.plot(count, ForceInput_x_T[2],  marker='x')
+            plt.plot(count, ForceInput_x_T[3],  marker='x')
+            plt.plot(count, ForceInput_x_T[4],  marker='x')
+            plt.plot(count, ForceInput_x_T[5],  marker='x')
+            plt.pause(0.0001) 
             
-        plt.figure("Force Input x T")
-        plt.title('Force Input x T')
-        plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
-        plt.plot(count, ForceInput_x_T[0],  marker='x')
-        plt.plot(count, ForceInput_x_T[1],  marker='x')
-        plt.plot(count, ForceInput_x_T[2],  marker='x')
-        plt.plot(count, ForceInput_x_T[3],  marker='x')
-        plt.plot(count, ForceInput_x_T[4],  marker='x')
-        plt.plot(count, ForceInput_x_T[5],  marker='x')
-        plt.pause(0.0001)             
+def Force_leg_plot(): 
+        if count == 0:
+            plt.show()
+        if count % plot_res == 0:    
+            plt.figure("Force Input")
+            plt.title('Force Input')
+            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+            plt.plot(count, ForceInput[0],  marker='x')
+            plt.plot(count, ForceInput[1],  marker='x')
+            plt.plot(count, ForceInput[2],  marker='x')
+            plt.plot(count, ForceInput[3],  marker='x')
+            plt.plot(count, ForceInput[4],  marker='x')
+            plt.plot(count, ForceInput[5],  marker='x')
+            plt.pause(0.0001)
+            
+            
+                            
 def define_legs_config_T():
     # Define the input parameters of these Stewart platform configurations
     #the configurations form my CAD model
@@ -79,8 +115,9 @@ def end():
 
     pass
 def readSerial_writeTOcsv():
-        global count
-        global ForceInput_x_T
+    
+        global count, ForceInput_x_T, ForceInput
+        
         while ser.inWaiting() == 0:
             pass
         indat = ser.readline().decode('UTF-8', errors='ignore').strip()
@@ -98,11 +135,10 @@ def readSerial_writeTOcsv():
         print(ForceInput_x_T)
         count += 1
         Time = time.time()
-        #string_to_write = count, count, Time, ForceInput, ForceInput_x_T
         string_to_write = str(count)  + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
         file.write(str(string_to_write))
         file.write("\n") 
-        print(string_to_write)
+
 def tear():
     global tear_value 
     i = 0
@@ -120,8 +156,8 @@ define_legs_config_T()
 while True:
     try:
         readSerial_writeTOcsv()
-        force_plot()
-                
+        # ForceInput_x_T_plot()
+        # Force_leg_plot()
     except KeyboardInterrupt:
         user_input = input("Press t to tear and e to exit: ")
         if input() == 't':
