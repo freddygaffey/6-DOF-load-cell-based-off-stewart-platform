@@ -11,7 +11,6 @@ import threading
 # const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
 
 
-
 ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
@@ -99,6 +98,12 @@ def define_legs_config_T():
                 np.concatenate((i4, np.cross(b4, i4))),
                 np.concatenate((i5, np.cross(b5, i5))),
                 np.concatenate((i6, np.cross(b6, i6)))])
+
+    # Set print options for higher precision
+    np.set_printoptions(precision=20, suppress=True)
+
+    print(T)
+
 def end():
     ser.close()  # to restore the current working directory
     file.close()
