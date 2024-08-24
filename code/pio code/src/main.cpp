@@ -1,5 +1,7 @@
+//on luinx (it works for manjaro) you need to run sudo chmod 666 /dev/ttyUSB0 
+
 #include <Arduino.h>
-#include "HX711.h"
+#include "HX711.h" //https://github.com/RobTillaart/HX711 "I think"
 
 // Define the HX711 pins for each load cell
 const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
