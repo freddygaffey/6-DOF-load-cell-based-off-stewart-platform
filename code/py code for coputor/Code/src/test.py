@@ -1,59 +1,62 @@
 import time
-import serial as serial_module
+import serial
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import csv
 import os
 import threading
-
-
-
 
 # // Define the HX711 pins for each load cell
 # const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
 # const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
 
 
-
-ser = serial_module.Serial('/dev/ttyUSB0', 230400)
+ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
-plot_res = 3 # higer num means faster plotting les resolution
+plot_res = 100 # higer num means faster plotting les resolution
 
 
+def start_files():
+    global file
+    global txt_file
 
+ 
 
-def start():
-    global file, txt_file, fig, ax, lines, ani
-
+# this makes the folder
     file_name = str(input("File name: "))
     folder_name = file_name
-    os.makedirs(os.path.join("code", "Data", folder_name), exist_ok=True)
-    os.chdir(os.path.join("code", "Data", folder_name))
-
-    if not file_name.endswith(".csv"):
-        file_name += ".csv"
-    file = open(file_name, 'w')
-    file.write("count,Time,ForceInput_x_T_0,ForceInput_x_T_1,ForceInput_x_T_2,ForceInput_x_T_3,ForceInput_x_T_4,ForceInput_x_T_5\n")
-    txt_file = open(file_name[:-4] + "_notes.txt", 'w')
-
-    fig, ax = plt.subplots()
-    lines = [ax.plot([], [], label=f'Force Input {i+1}')[0] for i in range(6)]
-    ax.legend(loc='upper right')
-    ax.set_title('Force Input x T')
-    ax.set_xlim(0, 100)  # Adjust this based on expected time range
-    ax.set_ylim(-100, 100)  # Adjust this based on expected data range
-
-    ani = animation.FuncAnimation(fig, update, init_func=init, frames=range(100), blit=True, interval=100)
+    if os.path.exists("Data") == 0:
+        os.mkdir("Data")
+    os.chdir("Data")
+    os.mkdir(folder_name)
+    os.chdir(folder_name)
 
 
+    if file_name[-4:] != ".csv":
+        file_name = file_name + ".csv"
+    global file
+    file = open(file_name, 'x')
+    file.write("count, Time, ForceInput_x_T[0], ForceInput_x_T[1], ForceInput_x_T[2], ForceInput_x_T[3], ForceInput_x_T[4], ForceInput_x_T[5] \n")
+    txt_file = file_name[:-4] + " notes" + ".txt" 
+    txt_file = open(txt_file, 'x')
+    txt_file.write("\n")
     
 def ForceInput_x_T_plot():
-    if len(count) > 0:
-        for i, line in enumerate(lines):
-            line.set_data(count, np.array(ForceInput_x_T)[:, i])
-    return lines
+        if count == 0:
+            plt.show()
+        if count % plot_res == 0:    
+            plt.figure("Force Input x T")
+            plt.title('Force Input x T')
+            plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
+            plt.plot(count, ForceInput_x_T[0],  marker='x')
+            plt.plot(count, ForceInput_x_T[1],  marker='x')
+            plt.plot(count, ForceInput_x_T[2],  marker='x')
+            plt.plot(count, ForceInput_x_T[3],  marker='x')
+            plt.plot(count, ForceInput_x_T[4],  marker='x')
+            plt.plot(count, ForceInput_x_T[5],  marker='x')
+            plt.pause(0.0001) 
+            
 def Force_leg_plot(): 
         if count == 0:
             plt.show()
@@ -99,14 +102,18 @@ def define_legs_config_T():
                 np.concatenate((i4, np.cross(b4, i4))),
                 np.concatenate((i5, np.cross(b5, i5))),
                 np.concatenate((i6, np.cross(b6, i6)))])
+
+    # Set print options for higher precision
+    np.set_printoptions(precision=20, suppress=True)
+
+    print(T)
+
 def end():
     ser.close()  # to restore the current working directory
     file.close()
     txt_file_notes = input(str("notes: "))
     txt_file.write(txt_file_notes)
     txt_file.close()
-    plt.close('all')
-
 
     pass
 def readSerial_writeTOcsv():
@@ -144,7 +151,7 @@ def tear():
     tear_value = 0 - average_ForceInput_x_T
     print(tear_value)
 
-start()
+start_files()
 define_legs_config_T()    
 
 
@@ -159,4 +166,3 @@ while True:
             tear()
         if user_input == 'e':
             end()
-

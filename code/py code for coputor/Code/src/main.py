@@ -17,18 +17,22 @@ count = 0
 plot_res = 100 # higer num means faster plotting les resolution
 
 
-
-
 def start_files():
     global file
     global txt_file
 
-    file_name = str(input("file name: "))
+ 
+
+# this makes the folder
+    file_name = str(input("File name: "))
     folder_name = file_name
-    relative_path_to_data = os.chdir(os.path.join("code", "Data"))  # Relative path to the "Data" folder from the current working directory
-    starDr = os.getcwd()
+    if os.path.exists("Data") == 0:
+        os.mkdir("Data")
+    os.chdir("Data")
     os.mkdir(folder_name)
     os.chdir(folder_name)
+
+
     if file_name[-4:] != ".csv":
         file_name = file_name + ".csv"
     global file
