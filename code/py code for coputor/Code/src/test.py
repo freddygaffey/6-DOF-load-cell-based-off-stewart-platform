@@ -21,8 +21,6 @@ def start_files():
     global file
     global txt_file
 
- 
-
 # this makes the folder
     file_name = str(input("File name: "))
     folder_name = file_name
@@ -103,16 +101,17 @@ def define_legs_config_T():
                 np.concatenate((i5, np.cross(b5, i5))),
                 np.concatenate((i6, np.cross(b6, i6)))])
 
-    # Set print options for higher precision
-    np.set_printoptions(precision=20, suppress=True)
 
-    print(T)
+
 
 def end():
     ser.close()  # to restore the current working directory
     file.close()
-    txt_file_notes = input(str("notes: "))
-    txt_file.write(txt_file_notes)
+    txt_file_data = input(str("notes: "))
+    txt_file = open(txt_file_data, 'x')
+    file.write(f"notes: {txt_file_data}")
+
+
     txt_file.close()
 
     pass
