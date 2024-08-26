@@ -112,7 +112,7 @@ def end():
     ser.close()  # to restore the current working directory
     file.close()
     txt_file_notes = input(str("notes: "))
-    txt_file.write(txt_file_notes)
+    
     txt_file.close()
 
     pass

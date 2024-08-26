@@ -109,11 +109,10 @@ def end():
     file.close()
     txt_file_data = input(str("notes: "))
     txt_file = open(txt_file_data, 'x')
-    file.write(f"notes: {txt_file_data}")
-
+    txt_file.write(f"notes: {txt_file_data}")
+    txt_file.write("testing")
 
     txt_file.close()
-
     pass
 def readSerial_writeTOcsv():
     
@@ -157,8 +156,8 @@ define_legs_config_T()
 while True:
     try:
         readSerial_writeTOcsv()
-        # ForceInput_x_T_plot()
-        # Force_leg_plot()
+        ForceInput_x_T_plot()
+        Force_leg_plot()
     except KeyboardInterrupt:
         user_input = input("Press t to tear and e to exit: ")
         if input() == 't':
