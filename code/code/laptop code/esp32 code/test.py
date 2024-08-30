@@ -15,6 +15,7 @@ ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
 plot_res = 100 # higer num means faster plotting les resolution
+count_close_open = 0 # make count to open close file 
 
 
 def start_files():
@@ -116,7 +117,7 @@ def end():
     pass
 def readSerial_writeTOcsv():
     
-        global count, ForceInput_x_T, ForceInput
+        global count, ForceInput_x_T, ForceInput, count_close_open
         
         while ser.inWaiting() == 0:
             pass
@@ -138,6 +139,14 @@ def readSerial_writeTOcsv():
         string_to_write = str(count)  + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
         file.write(str(string_to_write))
         file.write("\n") 
+
+        count_close_open =+ 1
+
+        if count_close_open == 1000:
+            file.close()
+            file.open()
+            count_close_open = 0
+            
 
 def tear():
     global tear_value 
