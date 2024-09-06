@@ -11,7 +11,7 @@ import threading
 # const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
 
 
-# ser = serial.Serial('/dev/ttyUSB0', 230400)
+ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
 plot_res = 100 # higer num means faster plotting les resolution
