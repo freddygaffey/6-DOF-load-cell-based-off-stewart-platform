@@ -1,4 +1,4 @@
-//on luinx (it works for manjaro) you need to run sudo chmod 666 /dev/ttyUSB0 
+//on luinx (it works for manjaro) you need to run $ sudo chmod 666 ..//..//../../../dev/ttyUSB0 
 
 #include <Arduino.h>
 #include "HX711.h" //https://github.com/RobTillaart/HX711 "I think"

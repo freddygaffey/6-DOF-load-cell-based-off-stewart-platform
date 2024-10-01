@@ -9,7 +9,7 @@ import threading
 # // Define the HX711 pins for each load cell
 # const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
 # const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
-
+#  $ sudo chmod 666 ..//..//../../../dev/ttyUSB0 
 
 ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
