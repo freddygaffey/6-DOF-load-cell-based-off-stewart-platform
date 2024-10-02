@@ -41,7 +41,7 @@ def start_files():
     txt_file = open(txt_file, 'x')
     txt_file.write("\n")
 
-def ForceInput_x_T_plot():
+def ForceInput_x_T_plot(count, ForceInput_x_T_plot):
         if count == 0:
             plt.show()
         if count % plot_res == 0:
@@ -56,8 +56,8 @@ def ForceInput_x_T_plot():
             plt.plot(count, ForceInput_x_T[5],  marker='x')
             plt.pause(0.1)
 
-def Force_leg_plot():
-    global ForceI
+def Force_leg_plot(count, ForceInput):
+    global ForceIn
     if count == 0:
         plt.show()
     if count % plot_res == 0:
@@ -103,9 +103,6 @@ def define_legs_config_T():
                 np.concatenate((i5, np.cross(b5, i5))),
                 np.concatenate((i6, np.cross(b6, i6)))])
 
-
-
-
 def end():
     ser.close()  # to restore the current working directory
     file.close()
@@ -116,41 +113,53 @@ def end():
 
     txt_file.close()
     pass
-def readSerial_writeTOcsv():
 
-        global count, ForceInput_x_T, ForceInput, count_close_open
+def clean_data():
+    global splitInputData
 
-        while ser.inWaiting() == 0:
-            pass
-        indat = ser.readline().decode('UTF-8', errors='ignore').strip()
-        splitInputData = indat.split(",")
+    while ser.inWaiting() == 0:
+        pass
+    indat = ser.readline().decode('UTF-8', errors='ignore').strip()
+    splitInputData = indat.split(",")
 
-        # Check if the length of the input data is 6
-        if len(splitInputData) != 6:
-            splitInputData = [0, 0, 0, 0, 0, 0]
-            splitInputData = [float(value) for value in splitInputData]
+    if len(splitInputData) != 6:
+        splitInputData = [0,0,0,0,0,0]
 
-        # if ValueError:
-        #     splitInputData = [0,0,0,0,0,0]
-        #
-        splitInputData1 = []
-        try:
-            splitInputData = splitInputData1
-            np.array(splitInputData)
-            splitInputData1 = splitInputData
-            return True
-            splitInputData= splitInputData
-        except ValueError:
-            splitInputData = [0,0,0,0,0,0]
-            return False
+    try:
+        # Convert to float and replace any non-numeric values with 0
+        # splitInputData = np.array([float(value) if value.replace('.', '').isdigit() else 0 for value in splitInputData])
+        splitInputData = [float(value) for value in splitInputData]
+        np.array(splitInputData)
+
+    except ValueError:
+        print(f"Warning: Received invalid data: {splitInputData}")
+        splitInputData = [0,0,0,0,0,0]
+        np.array(splitInputData)
 
 
 
 
-        # Convert the list to a numpy array
-        splitInputData = ForceInput = np.array(splitInputData)
-        ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)+tear_value
-        print(ForceInput_x_T)
+def do_math():
+    global splitInputData, ForceInput_x_T, T, tear_value, ForceInput
+    ForceInput = np.array(splitInputData)
+    ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1) + tear_value
+    print("ForceInput:", ForceInput)
+    print("ForceInput_x_T:", ForceInput_x_T)
+
+
+# def do_math():
+#     global splitInputData, ForceInput, ForceInput_x_T,T
+#     # Convert the list to a numpy array
+#     ForceInput = []
+#     splitInputData = ForceInput
+#     ForceInput = np.array(splitInputData).flatten()
+
+
+#     ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1)#+tear_value
+#     print(ForceInput_x_T)
+#     pass
+def write_to_csv():
+        global count, file , open, time
         count += 1
         Time = time.time()
         string_to_write = str(count)  + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
@@ -180,9 +189,12 @@ define_legs_config_T()
 
 while True:
     try:
-        readSerial_writeTOcsv()
-        ForceInput_x_T_plot()
-        Force_leg_plot()
+        define_legs_config_T()
+        clean_data()
+        do_math()
+        write_to_csv()
+        ForceInput_x_T_plot(count=count, ForceInput_x_T_plot= ForceInput_x_T)
+        Force_leg_plot(count,ForceInput)
     except KeyboardInterrupt:
         user_input = input("Press t to tear and e to exit: ")
         if input() == 't':

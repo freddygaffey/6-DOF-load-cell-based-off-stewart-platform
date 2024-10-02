@@ -54,7 +54,7 @@ def ForceInput_x_T_plot():
             plt.plot(count, ForceInput_x_T[3],  marker='x')
             plt.plot(count, ForceInput_x_T[4],  marker='x')
             plt.plot(count, ForceInput_x_T[5],  marker='x')
-            plt.pause(0.01)
+            plt.pause(0.0001)
 
 def Force_leg_plot():
         if count == 0:
