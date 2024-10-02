@@ -16,10 +16,10 @@ import threading
 ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
 count = 0
-plot_res = 1 # higer num means faster plotting les resolution
+plot_res = 2 # higer num means faster plotting les resolution
 count_close_open = 0 # make count to open close file
 average_ForceInput_x_T = []
-how_ave_tear = 2
+how_ave_tear = 10
 average_ForceInput_x_T_arr = np.zeros((how_ave_tear, 6))
 print(average_ForceInput_x_T_arr)
 
@@ -54,7 +54,7 @@ def ForceInput_x_T_plot(count, ForceInput_x_T_plot):
             plt.figure("Force Input x T")
             plt.title('Force Input x T')
             plt.legend(loc='upper right', labels=['Force Input 1', 'Force Input 2', 'Force Input 3', 'Force Input 4', 'Force Input 5', 'Force Input 6'])
-            plt.plot(count, ForceInput_x_T[0],  marker='x')
+            plt.plot(count, ForceInput_x_T[0], '-o' , '-l')
             plt.plot(count, ForceInput_x_T[1],  marker='x')
             plt.plot(count, ForceInput_x_T[2],  marker='x')
             plt.plot(count, ForceInput_x_T[3],  marker='x')
@@ -105,7 +105,6 @@ def define_legs_config_T():
                 np.concatenate((i4, np.cross(b4, i4))),
                 np.concatenate((i5, np.cross(b5, i5))),
                 np.concatenate((i6, np.cross(b6, i6)))])
-    print(T)
 
 def end():
     ser.close()  # to restore the current working directory
@@ -142,9 +141,10 @@ def clean_data():
 
 def do_math():
     global splitInputData, ForceInput_x_T, T, tear_value, ForceInput, average_ForceInput_x_T, average_ForceInput_x_T_arr
-    print(average_ForceInput_x_T_arr)
     ForceInput = np.array(splitInputData)
-    ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=1) + tear_value
+    ForceInput_x_T = np.sum(np.multiply(ForceInput[:, np.newaxis], T), axis=0)
+    np.array(tear_value)
+    ForceInput_x_T -= tear_value
     # print("ForceInput:", ForceInput)
     # print("ForceInput_x_T:", ForceInput_x_T)
     if count == 0:
@@ -153,16 +153,9 @@ def do_math():
     point_in_buffer = count % how_ave_tear
 
     average_ForceInput_x_T_arr[point_in_buffer-1] = ForceInput_x_T
-
-    # average_ForceInput_x_T_arr = np.append([ForceInput_x_T],[average_ForceInput_x_T_arr])
-    # average_ForceInput_x_T_arr.pop(how_ave_tear)
-
-    # average_ForceInput_x_T_arr = average_ForceInput_x_T_arr[how_ave_tear:0]
-
     average_ForceInput_x_T = np.sum(average_ForceInput_x_T_arr, axis=0) / how_ave_tear
-    print(average_ForceInput_x_T)
-    print("ave tar arr")
-
+    # print(average_ForceInput_x_T)
+    # print("ave tar arr")
 
         # sum(axis=0)
 
@@ -182,7 +175,7 @@ def write_to_csv():
 
         count_close_open =+ 1
 
-        if count_close_open == 100:
+        if count_close_open == 1000:
             file.close()
             file.open()
             count_close_open = 0
@@ -191,7 +184,7 @@ def tear():
     global tear_value, average_ForceInput_x_T
 
     tear_value = average_ForceInput_x_T
-    print(tear_value, average_ForceInput_x_T, average_ForceInput_x_T_arr)
+    print(tear_value)
 
 start_files()
 define_legs_config_T()
@@ -204,9 +197,12 @@ while True:
         clean_data()
         do_math()
         write_to_csv()
-        ForceInput_x_T_plot(count=count, ForceInput_x_T_plot= ForceInput_x_T)
+        # ForceInput_x_T_plot(count=count, ForceInput_x_T_plot= ForceInput_x_T)
         # Force_leg_plot(count,ForceInput)
+        if count % 4 == 0:
+            tear()
     except KeyboardInterrupt:
+        tear()
         user_input = input("Press t to tear and e to exit: ")
         if user_input == 't':
             print("ran ter")
