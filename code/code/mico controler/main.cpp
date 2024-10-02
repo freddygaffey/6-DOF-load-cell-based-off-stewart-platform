@@ -1,11 +1,17 @@
-//on luinx (it works for manjaro) you need to run $ sudo chmod 666 ..//..//../../../dev/ttyUSB0 
+//on luinx (it works for manjaro) you need to run $ sudo chmod 666 ..//..//../../../dev/ttyUSB0
 
 #include <Arduino.h>
 #include "HX711.h" //https://github.com/RobTillaart/HX711 "I think"
 
 // Define the HX711 pins for each load cell
-const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};  
-const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
+// const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};
+// const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
+
+const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 25, 26, 27};
+const int LOADCELL_SCK_PINS[] = {19, 18, 5, 5, 17, 16};
+
+// const int LOADCELL_DOUT_PINS[] = {25 ,33, 32, 25, 26, 27};
+// const int LOADCELL_SCK_PINS[] = {21 ,19, 18, 5, 17, 16};
 
 HX711 scales[6];  // Array to hold HX711 objects for each load cell
 
@@ -34,7 +40,3 @@ void loop() {
 
   Serial.println();
 }
-
-
-
-
