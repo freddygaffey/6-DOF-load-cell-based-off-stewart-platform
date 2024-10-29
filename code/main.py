@@ -2,14 +2,14 @@ import time
 import serial
 import numpy as np
 import matplotlib.pyplot as plt
-import csv
+# import csv
 import os
-import threading
+# import threading
 
 # // Define the HX711 pins for each load cell
 # const int LOADCELL_DOUT_PINS[] = {32, 33, 25, 26, 27, 14};
 # const int LOADCELL_SCK_PINS[] = {19, 18, 5, 17, 16, 4};
-#  $ sudo chmod 666 ..//..//../../../dev/ttyUSB0
+# $ sudo chmod 666 ..//..//../../../dev/ttyUSB0
 
 ser = serial.Serial('/dev/ttyUSB0', 230400)
 tear_value = [0, 0, 0, 0, 0, 0]
@@ -21,7 +21,7 @@ count_close_open = 0 # make count to open close file
 def start_files():
     global file
     global txt_file
-
+    global file_name
 # this makes the folder
     file_name = str(input("File name: "))
     folder_name = file_name
@@ -102,9 +102,7 @@ def define_legs_config_T():
     np.concatenate((i5, np.cross(b5, i5))),
     np.concatenate((i6, np.cross(b6, i6)))])
 
-
-
-
+    
 def end():
     ser.close()  # to restore the current working directory
     file.close()
@@ -112,23 +110,30 @@ def end():
     txt_file = open(txt_file_data, 'x')
     txt_file.write(f"notes: {txt_file_data}")
     txt_file.write("testing")
-
     txt_file.close()
-    pass
+
+
 def readSerial_writeTOcsv():
 
-    global count, ForceInput_x_T, ForceInput, count_close_open
+    global count, ForceInput_x_T, ForceInput, count_close_open, file
 
     while ser.inWaiting() == 0:
         pass
     indat = ser.readline().decode('UTF-8', errors='ignore').strip()
     splitInputData = indat.split(",")
 
-    # Check if the length of the input data is 6
-    if len(splitInputData) != 6:
-        splitInputData = [0, 0, 0, 0, 0, 0]
-    else:
-        splitInputData = [float(value) for value in splitInputData]
+
+    while True:
+        try:
+           splitInputData = [0,0,0,0,0,0]  
+            # splitInputData = [float(value) for value in splitInputData]
+           if len(splitInputData) != 5:
+                break
+
+        except ValueError:
+            splitInputData = [0, 0, 0, 0, 0, 0]
+
+
 
     # Convert the list to a numpy array
     splitInputData = ForceInput = np.array(splitInputData)
@@ -139,15 +144,17 @@ def readSerial_writeTOcsv():
     string_to_write = str(count)  + "," + str(Time) +  str(ForceInput_x_T[0]) + "," + str(ForceInput_x_T[1]) + "," + str(ForceInput_x_T[2]) + "," + str(ForceInput_x_T[3]) + "," + str(ForceInput_x_T[4]) + "," + str(ForceInput_x_T[5])
     file.write(str(string_to_write))
     file.write("\n")
-
     count_close_open =+ 1
 
-    if count_close_open == 1000:
+    if count_close_open % 1000:
         file.close()
-        file.open()
+        # file.kl()
+        # file.open(file_name, 'x')
+
+        file = open(file_name, 'x')
         count_close_open = 0
 
-
+    #
 def tear():
     global tear_value
     i = 0
@@ -172,4 +179,35 @@ while True:
         if input() == 't':
             tear()
         if user_input == 'e':
+
+
+
+
+
+
+
             end()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # # Check if the length of the input data is 6
+    # if len(splitInputData) != 6:
+    #     splitInputData = [0, 0, 0, 0, 0, 0]
+    # else:
+    #     splitInputData = [float(value) for value in splitInputData]
+    # except ValueError: 
+            # splitInputData = ForceInput = np.array(splitInputData)
+    #  
+
+
