@@ -16,10 +16,10 @@ const int LOADCELL_SCK_PINS[] = {19, 18, 5, 5, 17, 16};
 HX711 scales[6];  // Array to hold HX711 objects for each load cell
 
 // Define calibration factors for each load cell
-float calibration_factors[6] = {0,0,0,0,0,0}; // Default values, adjust as necessary
+float calibration_factors[6] = {0,0,0,0,0,0}; 
 
 void setup() {
-  Serial.begin(230400); // Initialize serial communication at 1,000,000 baud
+  Serial.begin(230400);
 
   // Initialize each HX711 module with the corresponding pins and calibration factor
   for (int i = 0; i < 6; i++) {
