@@ -1,5 +1,5 @@
 import time
-import serial
+import serial 
 import numpy as np
 import matplotlib.pyplot as plt
 # import csv
@@ -34,7 +34,6 @@ def start_files():
 
     if file_name[-4:] != ".csv":
         file_name = file_name + ".csv"
-    global file
     file = open(file_name, 'x')
     file.write("count, Time, ForceInput_x_T[0], ForceInput_x_T[1], ForceInput_x_T[2], ForceInput_x_T[3], ForceInput_x_T[4], ForceInput_x_T[5] \n")
     txt_file = file_name[:-4] + " notes" + ".txt"
@@ -54,7 +53,7 @@ def ForceInput_x_T_plot():
         plt.plot(count, ForceInput_x_T[3],  marker='x')
         plt.plot(count, ForceInput_x_T[4],  marker='x')
         plt.plot(count, ForceInput_x_T[5],  marker='x')
-        plt.pause(0.0001)
+        plt.pause(0.01)
 
 def Force_leg_plot():
     if count == 0:
@@ -69,7 +68,7 @@ def Force_leg_plot():
         plt.plot(count, ForceInput[3],  marker='x')
         plt.plot(count, ForceInput[4],  marker='x')
         plt.plot(count, ForceInput[5],  marker='x')
-        plt.pause(0.0001 )
+        plt.pause(0.01 )
 
 
 
@@ -123,15 +122,14 @@ def readSerial_writeTOcsv():
     splitInputData = indat.split(",")
 
 
-    while True:
-        try:
-           splitInputData = [0,0,0,0,0,0]  
-            # splitInputData = [float(value) for value in splitInputData]
-           if len(splitInputData) != 5:
-                break
-
-        except ValueError:
-            splitInputData = [0, 0, 0, 0, 0, 0]
+    try:
+        if len(splitInputData) != 6:
+            splitInputData = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        else:
+            # Explicitly convert each value to float
+            splitInputData = [float(x) for x in splitInputData]
+    except ValueError:
+        splitInputData = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 
 
@@ -146,15 +144,14 @@ def readSerial_writeTOcsv():
     file.write("\n")
     count_close_open =+ 1
 
-    if count_close_open % 1000:
-        file.close()
-        # file.kl()
-        # file.open(file_name, 'x')
-
-        file = open(file_name, 'x')
-        count_close_open = 0
-
+    # if count_close_open % 1000:
+    #     file.close()
     #
+    #     open(file_name, 'a')
+    # count_close_open = 0
+    
+
+
 def tear():
     global tear_value
     i = 0
@@ -179,35 +176,8 @@ while True:
         if input() == 't':
             tear()
         if user_input == 'e':
-
-
-
-
-
-
-
             end()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-    # # Check if the length of the input data is 6
-    # if len(splitInputData) != 6:
-    #     splitInputData = [0, 0, 0, 0, 0, 0]
-    # else:
-    #     splitInputData = [float(value) for value in splitInputData]
-    # except ValueError: 
-            # splitInputData = ForceInput = np.array(splitInputData)
-    #  
 
 
