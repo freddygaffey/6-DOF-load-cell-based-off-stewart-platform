@@ -1,4 +1,6 @@
-#!/home/fred/OneDrive/personal/6-DOF-load-cell-based-off-stewart-platform/code/code/venv/bin/python3.12
+#!/bin/sh
+'''exec' "/home/fred/OneDrive/personal/arcived-progectes/testing stuff/6-DOF-load-cell-based-off-stewart-platform/code/.venv/bin/python" "$0" "$@"
+' '''
 # -*- coding: utf-8 -*-
 import re
 import sys
