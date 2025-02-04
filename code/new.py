@@ -1,6 +1,6 @@
 import csv
 import os
-from posix import chdir, mkdir
+from posix import chdir, mkdir, write
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,67 +11,45 @@ import random
 import threading
 
 
+#make files
 name = input("File name: ")
 if name == "":
     name = " "
-# if name[-4:] != ".csv":
-    # name=name + ".csv"
 
 try:
     os.chdir("Data")
 except FileNotFoundError:
     os.mkdir("Data")
+    os.chdir("Data")
 
-
-f = False
-
-while f ==False:
-    try:
-        os.mkdir(name)
-        os.chdir(name)
-        file = open(name  + ".csv", "x")
-        file.write("count,Time,tear_value[0],tear_value[1],tear_value[2],tear_value[3],tear_value[4],tear_value[5],ForceInput_x_T[0],ForceInput_x_T[1],ForceInput_x_T[2],ForceInput_x_T[3],ForceInput_x_T[4],ForceInput_x_T[5]")
-         
-        
-        txt_file = open(name + ".txt", "x")
-        f = True
-    except FileExistsError:
-        name = name + str(random.random())
-        os.mkdir(name)
-        os.chdir(name)
-        file = open(name + ".csv", "x")
-        
-        file.write("hi")
-        file.write("count,Time,ForceInput[0],ForceInput[1],ForceInput[2],ForceInput[3],ForceInput[4],ForceInput[5]")
-        file.close()
-
-        txt_file = open(name + ".txt", "x")
-        txt_file.close()
-        f = True
-
+try:
+    os.mkdir(name)
+    os.chdir(name)
+    file = open(name  + ".csv", "x")
+    file.write("count,Time,tear_value[0],tear_value[1],tear_value[2],tear_value[3],tear_value[4],tear_value[5],ForceInput_x_T[0],ForceInput_x_T[1],ForceInput_x_T[2],ForceInput_x_T[3],ForceInput_x_T[4],ForceInput_x_T[5]")
+     
     
-def me_plot(count, name,var,res):
+    txt_file = open(name + ".txt", "x")
+    f = True
+except FileExistsError:
+    name = name + str(random.random())
+    os.mkdir(name)
+    os.chdir(name)
+    file = open(name + ".csv", "x")
+
+# plot
+def me_plot(count,var):
     if count ==0:
         plt.show()
-    if count % res ==0:
+
+    if count % 10 ==0:
         plt.plot(count,)
-    # for i in range(len(var)):
-    plt.plot(count, var[1], "-o", "-l")
-    plt.legend(
-            loc="upper right",
-            labels=[
-                f"{name} 1",
-                # f"{name} 2",
-                # f"{name} 3",
-                # f"{name} 4",
-                # f"{name} 5",
-                # f"{name} 6",
-            ],
-        )   
-    
+    for i in range(len(var)):
+        plt.plot(count, var[i], "-o", "-l")
     plt.pause(0.0001)
 
-def define_legs_config_T():
+# define t
+def define_t():
     global t
     # Define the input parameters of these Stewart platform configurations
     # the configurations form my CAD model
@@ -101,126 +79,79 @@ def define_legs_config_T():
             np.concatenate((i6, np.cross(b6, i6))),
         ]
     )
+    np.array(t,dtype=float)
     return t
-define_legs_config_T()
+define_t()
 
 
-ser = serial.Serial("/dev/ttyUSB0", 230400)
-while ser.inWaiting() == 0:
-    pass
+def data():
+    ser = serial.Serial("/dev/ttyUSB0", 230400)
+    while ser.inWaiting() == 0:
+        pass
+    data = ser.readline().decode("UTF-8", errors="ignore").strip()
+    data = data.split(",")
+    count = 0
+    while True:
+        try:
+            if count == 0:
+                  if len(data) != 6:
+                    data = [0]*6 
+            float(data[count])
+            count += 1
+        except ValueError:
+            data = [0]*6
+        except TypeError:
+            data = [0]*6
+        if count ==5:
+            break
+    return np.array(data,float)
+
+history =[]
+def tear(data,length):
+    global history
+    if len(history) != length:
+        history= [data]*length
+        print(history)
+    else:
+        history.append(data)
+    tear_array = [0]*6
+    for i in history:
+       a = 0
+       for j in i:
+           float(j)
+           temp = float(j)
+           temp = tear_array[a] + temp
+           tear_array[a] = temp 
+           a +=1
+    tear_array = np.divide(tear_array,length)
+    return tear_array
+
+
+
+
+    
 
 state = ""
-get_state_if_running = False
 def get_state():
     global state, txt_file,true
-    state = input("t for tear q for quit")
-    if state == "q":
-        true = False
-    get_state_if_running = True  
- #    if state == "q":
- #            txt_file = open(f"{txt_file}.txt","a")
- #            txt_file.write("""notes:
- #            """)
- #            write_to_txt = input("add aney notes:")
- #            txt_file.write(write_to_txt)
- #    true = False
- # 
- #    print("-"*10)
-# threading.Thread(target=get_state,daemon=True).start()
+    while True:
+        state = input("t for tear q for quit")
+        threading.Thread(target=get_state,daemon=True).start()
+        if state == "q":
+            break
+threading.Thread(target=get_state,daemon=True).start()
 
-history = []
-tare_val = []
-count = 0
-history_length = 3
+pev_tear_array = tear(data(),10)
+while True:
+    if state == "t":
+       pev_tear_array = tear(data(),length = 10)
+       state = ""
+       print(f"tearred and the tear val is {tear(data=data(),length=10)}")
 
-pev_tear_array = [0]*6
-true = True
-while true == True:
-    try:
-        while True:
-            try:
-                data = ser.readline().decode("UTF-8", errors="ignore").strip()
-                data = data.split(",")
-                if len(data) != 6:
-                    float("hi") 
-                for i in data:
-                    i = float(i)
-                break
-            except ValueError:
-                del data
-                
-            count += 1 
-
-        history.append(data)
-        if len(history) > history_length:
-            history.pop(0)
-
-        # history = [[1]*6]*10
-        tear_array = [0]*6
-        for i in history:
-            a = 0
-            for j in i:
-                float(j)
-                temp = 0
-                temp = float(j)
-                temp = tear_array[a] + temp
-                tear_array[a] = temp 
-                a +=1
-        tear_array = np.divide(tear_array,history_length)
-        
-        # print(f"tear array: {tear_array}")
-        # print(f"data: {data}")
-        # print(f"final: {temp}")
-
-
-        # threading.Thread(target=get_state,daemon=True).start()
-        if state == "t" or count >= 3:
-            pev_tear_array = tear_array
-            state = ""
-            print(f"tearred and the tear val is {tear_array}")
-        if not get_state_if_running:
-            get_state_if_running = True
-            threading.Thread(target=get_state,daemon=True).start()
-            state = ""
-
-        # if state == "q":
-        #     true = False
-        #     txt_file = open(f"{txt_file}.txt","a")
-        #     txt_file.write("""notes:
-        #     """)
-        #     write_to_txt = input("add aney notes:")
-        #     txt_file.write(write_to_txt)
-        data = np.array(data,dtype=float) - np.array(pev_tear_array,dtype=float)
-        t = np.array(t, dtype=float)
-        me_plot(count=count,var=data,res=2,name="sda")
-        force_vector = np.dot(t,data)        
-        
-        timestamp = time.time()
-        # print(timestamp)
-        force_str = str(force_vector)
-        print(force_str)
-        file = open(f"{name}.csv" ,"a" ) 
-        file.write(f"{count},{timestamp},{force_str}")
-        file.write("""
-        """)
-        file.close()
-
-    except KeyboardInterrupt:
-        break
-       # txt_file = open(f"{txt_file}.txt","a")
-       # txt_file.write("""notes:
-       # """)
-       # write_to_txt = input("add aney notes:")
-       # txt_file.write(write_to_txt)
-       # true = False
-
-txt_file = open(f"{txt_file}.txt","a")
-txt_file.write("""notes:
-""")
-write_to_txt = input("add aney notes:")
-txt_file.write(write_to_txt)
-true = False
-
-
-
+    t = np.array(t, dtype=float)
+    pev_tear_array = np.array(pev_tear_array,dtype=float)
+    force_vector = np.dot(t,data())        
+    pev_tear_array = np.dot(t,pev_tear_array)
+    force_vector = np.subtract(np.array(pev_tear_array,dtype=float),force_vector)
+    print(f"{force_vector[0]}    {force_vector[1]}    {force_vector[2]}    {force_vector[3]}    {force_vector[4]}    {force_vector[5]}")
 
