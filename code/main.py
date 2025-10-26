@@ -13,14 +13,18 @@ class dof6():
         self.t = self.define_t()
         self.dir_name = "6DOF_logs"
         self.curent_log_file_name = str(time.time())
-        self.log_rate = 100 # times per second 
+        # self.log_rate = 100 # times per second 
         self.ser = None
         self.logging_state = False
+
         
         if self.dir_name not in os.listdir():
             os.mkdir(self.dir_name)
             open(f"{self.curent_log_file_name}/tear_values.csv").close()
         os.chdir(self.dir_name)
+        
+        self.per_leg_calib = self.get_per_leg_calib()
+        self.tear_valus = self.get_per_leg_tears()
         
         
         
@@ -128,34 +132,46 @@ class dof6():
         if self.logging_state == True:
             raise ValueError(" you need to stop loggin to tear")
             return 0
+        
+        self.tear_valus
     
         tear_arr = []
-        for i in range(10):
-            tear_arr.append(self.get_leg_values_clean())
+        for i in range(num_samples):
+            i = self.get_leg_values_clean()
+            for j in range(len(i)):
+                i[j] *= self.per_leg_calib[j]
+            tear_arr.append(i)
+            
         np_arr_for_tear = np.zeros(6)
         for vals in tear_arr:
             np_arr_for_tear += np.array(vals, dtype=float)
 
         tear_values = np_arr_for_tear / len(tear_arr)
         
+        self.tear_valus = tear_values
+        
         print(tear_values," these are the tear values")
         with open("tear_values.csv", "w", newline="") as f:
             writer = csv.writer(f)
             for i, val in enumerate(tear_values):
                 writer.writerow([f"leg[{i}]", val])
-    
+                
     def remove_all_logs(self):
         files = os.listdir()
         for i in files:
-            if i == "tear_values.csv":
+            if i == "tear_values.csv" or i == "calibration_factors.csv":
                 pass
             else:
                 os.remove(i)
                 
     def calulate_forces(self,force_on_each_leg: list)->list:
         teared_force_on_each_leg = []
+        
         for i in range(len(force_on_each_leg)):
-            teared_force_on_each_leg.append(force_on_each_leg[i] - self.get_per_leg_tears()[i])
+            force_on_each_leg[i] *= self.per_leg_calib[i]
+            
+        for i in range(len(force_on_each_leg)):
+            teared_force_on_each_leg.append(force_on_each_leg[i] - self.tear_valus[i])
             
         print("raw leg not tear", force_on_each_leg)
         print("raw leg with tear", teared_force_on_each_leg)
@@ -173,6 +189,16 @@ class dof6():
             i[1] = float(i[1])
             tear_leg_values.append(i[1])
         return tear_leg_values
+    
+    def get_per_leg_calib(self)->list:
+        tear_file = open("calibration_factors.csv","r")
+        contence = tear_file.readlines()
+        calibration_factors = []
+        for i in contence:
+            i = i.strip().split(',')
+            i[1] = float(i[1])
+            calibration_factors.append(i[1])
+        return calibration_factors
     
     def log_force(self):
         while self.logging_state:
@@ -202,11 +228,51 @@ class dof6():
             if len(data) != 6:
                 continue
             return data
-            
+    
+    def calibrate_legs(self, known_weight: float, num_samples: int = 50):
+        # this is a ai function I did not want to wright it my eslf
+        """
+        Calibrates each leg of the 6DOF platform using a known weight.
+
+        Parameters:
+        - known_weight: float, the weight in kilograms placed on the platform
+        - num_samples: int, number of samples to average per leg
+
+        Outputs:
+        - Writes 'calibration_factors.csv' with per-leg scale factors
+        - Returns a numpy array of the scale factors
+        """
+
+        # Step 1: Collect multiple samples like in tear()
+        leg_samples = []
+        for _ in range(num_samples):
+            leg_samples.append(self.get_leg_values_clean())  # returns list of 6 raw readings
+
+        # Step 2: Compute average per leg
+        leg_samples = np.array(leg_samples, dtype=float)
+        mean_forces = np.mean(leg_samples, axis=0)  # [f1_mean, f2_mean, ..., f6_mean]
+
+        # Step 3: Compute expected per-leg force
+        g = 9.81  # m/s^2
+        total_expected_force = known_weight * g
+        expected_per_leg = total_expected_force / 6
+
+        # Step 4: Compute per-leg scale factors
+        scale_factors = expected_per_leg / mean_forces  # array of 6 factors
+
+        # Step 5: Save to CSV
+        with open("calibration_factors.csv", "w", newline="") as f:
+            writer = csv.writer(f)
+            for i, factor in enumerate(scale_factors):
+                writer.writerow([f"leg[{i}]", factor])
+
+        print("Calibration complete. Scale factors per leg:", scale_factors)
+        return scale_factors
 
 if __name__ == "__main__":
     app = dof6()
     app.tk_app()
+    # app.calibrate_legs(4)
     print(app.get_per_leg_tears())
     app.tear(num_samples=100)
 
