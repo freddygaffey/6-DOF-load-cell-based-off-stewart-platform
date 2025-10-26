@@ -8,6 +8,12 @@ import random
 import tkinter as tk
 import threading
 
+# Implement the default Matplotlib key bindings.
+from matplotlib.backend_bases import key_press_handler
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg,
+                                               NavigationToolbar2Tk)
+from matplotlib.figure import Figure
+
 class dof6():
     def __init__(self):
         self.t = self.define_t()
@@ -16,6 +22,7 @@ class dof6():
         # self.log_rate = 100 # times per second 
         self.ser = None
         self.logging_state = False
+        self.to_plot_buff = []
 
         
         if self.dir_name not in os.listdir():
@@ -107,16 +114,20 @@ class dof6():
             command=lambda:self.remove_all_logs()
         )
         remove_all_logs_bott.grid(row=3,column=0,padx=10,pady=10)
-        
-        
-        
+               
         
         self.root.mainloop()
     
+        
+    def update_plt_auto(self):
+        print("ran update_plt_auto") 
+        self.root.after(1000, self.update_plt_auto)
+        
+          
     def start_loging(self):
         self.curent_log_file_name = str(time.time())
         self.curent_log_file = open(f"{self.curent_log_file_name}.csv","x")
-        self.curent_log_file.writelines(["ForceInput_x_T[0],ForceInput_x_T[1],ForceInput_x_T[2],ForceInput_x_T[3],ForceInput_x_T[4],ForceInput_x_T[5]\n"]) 
+        self.curent_log_file.writelines(["Time,ForceInput_x_T[0],ForceInput_x_T[1],ForceInput_x_T[2],ForceInput_x_T[3],ForceInput_x_T[4],ForceInput_x_T[5]\n"]) 
         self.logging_state = True
         self.log_thead = threading.Thread(target=self.log_force,daemon=True)
         self.log_thead.start()
@@ -172,12 +183,11 @@ class dof6():
             
         for i in range(len(force_on_each_leg)):
             teared_force_on_each_leg.append(force_on_each_leg[i] - self.tear_valus[i])
-            
-        print("raw leg not tear", force_on_each_leg)
-        print("raw leg with tear", teared_force_on_each_leg)
+        
         teared_force_on_each_leg = np.array(teared_force_on_each_leg)
         forces_teared = np.dot(self.t,teared_force_on_each_leg)
     
+        print(forces_teared)
         return forces_teared
 
     def get_per_leg_tears(self)->list:
@@ -204,14 +214,16 @@ class dof6():
         while self.logging_state:
             force = self.calulate_forces(self.get_leg_values_clean())
             force = list(force)
+            self.to_plot_buff.append([time.time()] + force)
+            
             force_str = ""
             for i in range(len(force)):
                 force_str += str(float(force[i])) + ","
-                
             force_str = force_str[0:-1]
             force_str += "\n"
+            force_str = str(time.time()) + "," + force_str
             self.curent_log_file.write(force_str)
-        return 0 
+        
     
     def get_leg_values_clean(self,port="COM22",baudrate=9600):
         while 1:
@@ -272,6 +284,7 @@ class dof6():
 if __name__ == "__main__":
     app = dof6()
     app.tk_app()
+    app.update_plt_auto()
     # app.calibrate_legs(4)
     print(app.get_per_leg_tears())
     app.tear(num_samples=100)
